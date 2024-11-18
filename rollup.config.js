@@ -127,6 +127,23 @@ export default [
         ],
     },
     {
+        input: 'packages/resource-by-day-grid/src/index.js',
+        output: {
+            format: 'es',
+            file: 'packages/resource-by-day-grid/index.js'
+        },
+        external: ['@event-calendar/core', '@event-calendar/time-grid', 'svelte', 'svelte/internal', 'svelte/store'],
+        plugins: [
+            svelte({
+                compilerOptions: {
+                    dev: !production,
+                    discloseVersion: false,
+                    css: false
+                }
+            })
+        ],
+    },
+    {
         input: 'packages/resource-timeline/src/index.js',
         output: {
             format: 'es',
