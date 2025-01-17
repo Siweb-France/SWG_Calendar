@@ -9,7 +9,7 @@
         floor,
         rect,
         setPayload,
-        bgEvent
+        bgEvent, handleZeroDurationChunk
     } from '@event-calendar/core';
     import {groupEventChunks} from './utils';
     import Event from './Event.svelte';
@@ -43,6 +43,7 @@
         for (let event of $_events) {
             if ((!event.allDay || bgEvent(event.display)) && eventIntersects(event, start, end, resourceFilter)) {
                 let chunk = createEventChunk(event, start, end);
+                handleZeroDurationChunk(chunk, $slotDuration);
                 switch (event.display) {
                     case 'background': bgChunks.push(chunk); break;
                     default: chunks.push(chunk);
@@ -60,7 +61,7 @@
     $: highlight = $highlightedDates.some(d => datesEqual(d, date));
 
     function dateFromPoint(x, y) {
-        y -= rect(el).top;
+        y = floor(y) - floor(rect(el).top);
         return {
             allDay: false,
             date: addDuration(

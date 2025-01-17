@@ -12,7 +12,7 @@
         resourceBackgroundColor,
         resourceTextColor,
         task, height, toSeconds,
-        isFunction
+        isFunction, subtractDuration, cloneDate
     } from '@event-calendar/core';
     import {repositionEvent} from './lib.js';
 
@@ -111,7 +111,13 @@
 
     function createDragHandler(interaction, resize) {
         return interaction.action
-            ? jsEvent => interaction.action.drag(event, jsEvent, resize, null, [margin, resource])
+            ? jsEvent => interaction.action.drag(
+                event,
+                jsEvent,
+                resize,
+                resize && chunk.zeroDuration ? subtractDuration(cloneDate(event.end), $slotDuration) : undefined,
+                [margin, resource]
+            )
             : undefined;
     }
 
@@ -142,11 +148,17 @@
         on:mouseleave={createHandler($eventMouseLeave, display)}
         on:pointerdown={!bgEvent(display) && !helperEvent(display) && createDragHandler($_interaction)}
     >
+        <svelte:component
+            this={$_interaction.resizer}
+            start
+            {event}
+            on:pointerdown={createDragHandler($_interaction, ['x', 'start'])}
+        />
         <div class="{$theme.eventBody}" use:setContent={content}></div>
         <svelte:component
             this={$_interaction.resizer}
             {event}
-            on:pointerdown={createDragHandler($_interaction, 'x')}
+            on:pointerdown={createDragHandler($_interaction, ['x', 'end'])}
         />
     </article>
 {/if}
