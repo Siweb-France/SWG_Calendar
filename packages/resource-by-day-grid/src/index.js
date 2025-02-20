@@ -12,7 +12,13 @@ export default {
         options.views.resourceByDayGridDay = {
             buttonText: btnTextDay,
             component: View,
-            duration: {days: 1},
+            duration: {days: 3},
+            theme: themeView('ec-time-grid ec-resource-day-view')
+        };
+        options.views.resourceByDayGridDayCopy = {
+            buttonText: btnTextDay,
+            component: View,
+            duration: {days: 5},
             theme: themeView('ec-time-grid ec-resource-day-view')
         };
         options.views.resourceByDayGridWeek = {
