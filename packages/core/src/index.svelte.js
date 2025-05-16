@@ -5,3 +5,4 @@ export {default as List} from './plugins/list';
 export {default as ResourceTimeGrid} from './plugins/resource-time-grid';
 export {default as ResourceTimeline} from './plugins/resource-timeline';
 export {default as TimeGrid} from './plugins/time-grid';
+export {default as ResourceByDayGrid} from './plugins/resource-by-day-grid';

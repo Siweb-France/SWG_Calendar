@@ -1,5 +1,5 @@
-import {btnTextDay, btnTextWeek, themeView, viewResources} from '@event-calendar/core';
-import TimeGrid from '@event-calendar/time-grid';
+import {btnTextDay, btnTextWeek, themeView, viewResources} from '#lib';
+import TimeGrid from '../time-grid/index.js';
 import View from './View.svelte';
 
 export default {
