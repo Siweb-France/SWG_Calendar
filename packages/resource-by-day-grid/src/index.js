@@ -9,16 +9,28 @@ export default {
         options.buttonText.resourceByDayGridDay = 'resources by day';
         options.buttonText.resourceByDayGridWeek = 'resources by day';
         options.view = 'resourceByDayGridWeek';
-        options.views.resourceByDayGridDay = {
+        options.views.resourceByDayGridDayWithWeekend = {
             buttonText: btnTextDay,
             component: View,
             duration: {days: 3},
             theme: themeView('ec-time-grid ec-resource-day-view')
         };
-        options.views.resourceByDayGridDayCopy = {
+        options.views.resourceByDayGridDayCopyWithWeekend = {
             buttonText: btnTextDay,
             component: View,
             duration: {days: 5},
+            theme: themeView('ec-time-grid ec-resource-day-view')
+        };
+        options.views.resourceByDayGridDayWithoutWeekend = {
+            buttonText: btnTextDay,
+            component: View,
+            duration: {days: 5},
+            theme: themeView('ec-time-grid ec-resource-day-view')
+        };
+        options.views.resourceByDayGridDayCopyWithoutWeekend = {
+            buttonText: btnTextDay,
+            component: View,
+            duration: {days: 7},
             theme: themeView('ec-time-grid ec-resource-day-view')
         };
         options.views.resourceByDayGridWeek = {
