@@ -2,12 +2,13 @@
     import {getContext, untrack} from 'svelte';
     import {
         addDay, bgEvent, cloneDate, createEventChunk, eventIntersects, limitToRange, prepareEventChunks, runReposition
-    } from '../../../lib';
+    } from '#lib';
     import Day from './Day.svelte';
 
     let {dates, resource = undefined} = $props();
 
-    let {_events, _iEvents, hiddenDays, resources, filterEventsWithResources, validRange} = getContext('state');
+    let {_filteredEvents, _iEvents, eventOrder, hiddenDays, resources, filterEventsWithResources,
+        validRange} = getContext('state');
 
     let refs = [];
 
@@ -21,7 +22,7 @@
     let [chunks, bgChunks, longChunks] = $derived.by(() => {
         let chunks = [];
         let bgChunks = [];
-        for (let event of $_events) {
+        for (let event of $_filteredEvents) {
             if (event.allDay && eventIntersects(event, start, end, resourceFilter)) {
                 let chunk = createEventChunk(event, start, end);
                 if (bgEvent(event.display)) {
@@ -31,8 +32,8 @@
                 }
             }
         }
-        prepareEventChunks(bgChunks, $hiddenDays);
-        let longChunks = prepareEventChunks(chunks, $hiddenDays);
+        prepareEventChunks(bgChunks, $hiddenDays, $eventOrder);
+        let longChunks = prepareEventChunks(chunks, $hiddenDays, $eventOrder);
         return [chunks, bgChunks, longChunks];
     });
 
@@ -48,7 +49,7 @@
         let chunk;
         if (event && event.allDay && eventIntersects(event, start, end, resource)) {
             chunk = createEventChunk(event, start, end);
-            prepareEventChunks([chunk], $hiddenDays);
+            prepareEventChunks([chunk], $hiddenDays, $eventOrder);
         } else {
             chunk = null;
         }

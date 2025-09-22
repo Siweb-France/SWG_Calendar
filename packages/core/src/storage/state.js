@@ -1,8 +1,8 @@
 import {get, writable} from 'svelte/store';
 import {tick} from 'svelte';
 import {createOptions, createParsers} from './options.js';
-import {activeRange, currentRange, dayGrid, events, now, today, view as view2, viewDates, viewTitle} from './stores.js';
-import {identity, intl, intlRange, isFunction, keys} from '#lib';
+import {activeRange, currentRange, dayGrid, events, now, today, view as view2, viewDates, viewTitle, filteredEvents} from './stores.js';
+import {identity, intl, intlRange, isFunction, keys, toViewWithLocalDates} from '#lib';
 
 export default class {
     constructor(plugins, input) {
@@ -44,6 +44,7 @@ export default class {
         this._viewDates = viewDates(this);
         this._view = view2(this);
         this._viewComponent = writable(undefined);
+        this._filteredEvents = filteredEvents(this);
         // Interaction
         this._interaction = writable({});
         this._iEvents = writable([null, null]);  // interaction events: [drag/resize, pointer]
@@ -110,7 +111,9 @@ export default class {
                     // switch view component
                     this._viewComponent.set(component);
                     if (isFunction(opts.viewDidMount)) {
-                        tick().then(() => opts.viewDidMount(get(this._view)));
+                        tick().then(() => opts.viewDidMount({
+                            view: toViewWithLocalDates(get(this._view))
+                        }));
                     }
                     // update store values
                     for (let key of keys(opts)) {

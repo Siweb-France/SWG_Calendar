@@ -9,12 +9,10 @@
 
     let {resource} = $props();
 
-    let {
-        _viewDates, _events, _iEvents, _resHs, _dayTimeLimits, slotDuration, theme, validRange
-    } = getContext('state');
+    let {_viewDates, _filteredEvents, _iEvents, _dayTimeLimits, _daysHs, _resHs,
+        eventOrder, slotDuration, theme, validRange} = getContext('state');
 
     let refs = [];
-    let height = $state(0);
 
     let [start, end] = $derived.by(() => {
         let start = cloneDate(limitToRange($_viewDates[0], $validRange));
@@ -34,7 +32,7 @@
         let chunks = [];
         let bgChunks = [];
         let longChunks;
-        for (let event of $_events) {
+        for (let event of $_filteredEvents) {
             if (eventIntersects(event, start, end, resource)) {
                 let chunk = createEventChunk(event, start, end);
                 if (bgEvent(event.display)) {
@@ -44,8 +42,8 @@
                 }
             }
         }
-        [bgChunks] = prepareEventChunks(bgChunks, $_viewDates, $_dayTimeLimits, $slotDuration);
-        [chunks, longChunks] = prepareEventChunks(chunks, $_viewDates, $_dayTimeLimits, $slotDuration);
+        [bgChunks] = prepareEventChunks(bgChunks, $_viewDates, $_dayTimeLimits, $slotDuration, $eventOrder);
+        [chunks, longChunks] = prepareEventChunks(chunks, $_viewDates, $_dayTimeLimits, $slotDuration, $eventOrder);
         return [chunks, bgChunks, longChunks];
     });
 
@@ -53,7 +51,7 @@
         let chunk;
         if (event && eventIntersects(event, start, end, resource)) {
             chunk = createEventChunk(event, start, end);
-            [[chunk]] = prepareEventChunks([chunk], $_viewDates, $_dayTimeLimits, $slotDuration);
+            [[chunk]] = prepareEventChunks([chunk], $_viewDates, $_dayTimeLimits, $slotDuration, $eventOrder);
         } else {
             chunk = null;
         }
@@ -61,13 +59,12 @@
     }));
 
     export function reposition() {
-        height = ceil(max(...runReposition(refs, $_viewDates))) + 10;
-        $_resHs.set(resource, height);
-        $_resHs = $_resHs;
+        $_daysHs.set(resource, ceil(max(...runReposition(refs, $_viewDates))) + 10);
+        $_daysHs = $_daysHs;
     }
 </script>
 
-<div class="{$theme.days}" style="flex-basis: {max(height, 34)}px" role="row">
+<div class="{$theme.days}" style="flex-basis: {max($_daysHs.get(resource) ?? 0, $_resHs.get(resource) ?? 0, 34)}px" role="row">
     {#each $_viewDates as date, i}
         <!-- svelte-ignore binding_property_non_reactive -->
         <Day {date} {resource} {chunks} {bgChunks} {longChunks} {iChunks} bind:this={refs[i]}/>

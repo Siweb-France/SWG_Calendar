@@ -1,4 +1,38 @@
-# Event Calendar changelog
+# EventCalendar changelog
+
+## 4.6.0
+September 4, 2025
+* Added `eventOrder` option ([549](https://github.com/vkurko/calendar/issues/549))
+
+## 4.5.2
+August 21, 2025
+* Fixed row height issue in `resourceTimeline` views ([401](https://github.com/vkurko/calendar/issues/401))
+
+## 4.5.1
+August 11, 2025
+* Fixed `Svelte error: await_outside_boundary` ([530](https://github.com/vkurko/calendar/issues/530))
+
+## 4.5.0
+June 27, 2025
+* `viewDidMount` input parameter has been adjusted to match documentation ([522](https://github.com/vkurko/calendar/issues/522))
+* Fixed event styles not being applied ([520](https://github.com/vkurko/calendar/issues/520), [521](https://github.com/vkurko/calendar/pull/521))
+
+## 4.4.2
+June 26, 2025
+* Fixed an issue with `updateEvent()` producing an error ([516](https://github.com/vkurko/calendar/issues/516))
+
+## 4.4.1
+June 16, 2025
+* Fixed event positioning issue ([511](https://github.com/vkurko/calendar/issues/511))
+
+## 4.4.0
+June 5, 2025
+* Added `eventFilter` option ([500](https://github.com/vkurko/calendar/pull/500))
+
+## 4.3.1
+June 3, 2025
+* Fixed error with `svelte >= 5.33.0` ([505](https://github.com/vkurko/calendar/issues/505), [507](https://github.com/vkurko/calendar/issues/507))
+* Fixed infinite recursion when using calendar in Lit component ([142](https://github.com/vkurko/calendar/issues/142#issuecomment-2894606865))
 
 ## 4.3.0
 May 16, 2025

@@ -8,8 +8,8 @@
 
     let {date} = $props();
 
-    let {_events, _interaction, _intlListDay, _intlListDaySide, _today,
-        resources, filterEventsWithResources, highlightedDates, theme, validRange} = getContext('state');
+    let {_filteredEvents, _interaction, _intlListDay, _intlListDaySide, _today,
+        resources, eventOrder, filterEventsWithResources, highlightedDates, theme, validRange} = getContext('state');
 
     let el = $state();
     let isToday = $derived(datesEqual(date, $_today));
@@ -22,13 +22,13 @@
         if (!disabled) {
             let start = date;
             let end = addDay(cloneDate(date));
-            for (let event of $_events) {
+            for (let event of $_filteredEvents) {
                 if (!bgEvent(event.display) && eventIntersects(event, start, end, $filterEventsWithResources ? $resources : undefined)) {
                     let chunk = createEventChunk(event, start, end);
                     chunks.push(chunk);
                 }
             }
-            sortEventChunks(chunks);
+            sortEventChunks(chunks, $eventOrder);
         }
         return chunks;
     });
