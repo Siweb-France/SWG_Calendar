@@ -30,12 +30,32 @@ export function symbol() {
     return Symbol('ec');
 }
 
+export function length(array) {
+    return array.length;
+}
+
+export function empty(array) {
+    return !length(array);
+}
+
 export function isArray(value) {
     return Array.isArray(value);
 }
 
 export function isFunction(value) {
     return typeof value === 'function';
+}
+
+export function isPlainObject(value) {
+    if (typeof value !== 'object' || value === null) {
+        return false;
+    }
+    const prototype = Object.getPrototypeOf(value);
+    return prototype === null || prototype === Object.prototype;
+}
+
+export function isDate(value) {
+    return value instanceof Date;
 }
 
 export function run(fn) {
@@ -50,11 +70,6 @@ export function noop() {}
 
 export const identity = (x) => x;
 
-export function stopPropagation(fn) {
-    return function (event) {
-        event.stopPropagation();
-        if (fn) {
-            fn.call(this, event);
-        }
-    };
+export function isRtl() {
+    return window.getComputedStyle(document.documentElement).direction === 'rtl';
 }

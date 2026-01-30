@@ -1,95 +1,88 @@
 <script>
-    import {getContext} from 'svelte';
-    import {datesEqual, setContent, toISOString} from '#lib';
-    import {Section, Body, Day, Week} from '../time-grid/index.js';
+    import {getContext, tick} from 'svelte';
+    import {ColHead, DayHeader} from '#components';
+    import {datesEqual, isRtl, length} from '#lib';
+    import ViewState from './state.svelte.js';
     import Label from './Label.svelte';
+    import View from '../time-grid/View.svelte';
+    import NowIndicator from '../time-grid/NowIndicator.svelte';
 
-    let {
-        datesAboveResources, _today, _viewDates, _viewResources, _intlDayHeader, _intlDayHeaderAL, allDaySlot, theme
-    } = getContext('state');
+    let mainState = getContext('state');
+    let viewState = new ViewState(mainState);
 
-    let loops = $derived($datesAboveResources ? [$_viewDates, $_viewResources] : [$_viewResources, $_viewDates]);
+    let {today, mainEl, viewDates, options: {scrollTime, datesAboveResources, theme}} = $derived(mainState);
+    let {grid, sidebarWidth} = $derived(viewState);
 
     let resourceLabels = $state([]);
+
+    // Handle scrollTime (scroll to today)
+    $effect(() => {
+        if (datesAboveResources) {
+            viewDates;
+            scrollTime;
+            tick().then(scrollToTime);
+        }
+    });
+    function scrollToTime() {
+        if (today >= viewDates[0] && today <= viewDates.at(-1)) {
+            for (let days of grid) {
+                let day = days[0];
+                if (datesEqual(day.dayStart, today)) {
+                    mainEl.scrollLeft = (mainEl.scrollWidth - sidebarWidth) / (length(grid) * length(days)) * (day.gridColumn - 1) * (isRtl() ? -1 : 1);
+                    break;
+                }
+            }
+        }
+    }
 </script>
 
-<div class="{$theme.header}">
-    <Section>
-        {#each loops[0] as item0, i}
-            <div class="{$theme.resource}">
-                {#if $datesAboveResources}
-                    <div class="{$theme.day} {$theme.weekdays?.[item0.getUTCDay()]}{datesEqual(item0, $_today) ? ' ' + $theme.today : ''}">
-                        <time
-                            datetime="{toISOString(item0, 10)}"
-                            aria-label="{$_intlDayHeaderAL.format(item0)}"
-                            use:setContent={$_intlDayHeader.format(item0)}
-                        ></time>
-                    </div>
+<View {viewState}>
+    {#snippet header()}
+        {#each grid as days, i}
+            {@const {dayStart: date, resource, disabled, highlight} = days[0]}
+            <ColHead
+                {date}
+                className={length(grid[0]) > 1 ? theme.colGroup : undefined}
+                weekday={datesAboveResources}
+                colSpan={length(days)}
+                colIndex={1 + i * length(days)}
+                disabled={datesAboveResources && disabled}
+                highlight={datesAboveResources && highlight}
+            >
+                {#if datesAboveResources}
+                    <DayHeader {date}/>
                 {:else}
-                    <div class="{$theme.day}">
-                        <Label resource={item0} setLabel={e => resourceLabels[i] = e.detail + ', '} />
-                    </div>
+                    <Label {resource} setLabel={label => resourceLabels[i] = label + ', '}/>
                 {/if}
-                {#if loops[1].length > 1}
-                    <div class="{$theme.days}">
-                        {#each loops[1] as item1}
-                            {#if $datesAboveResources}
-                                <div class="{$theme.day}" role="columnheader">
-                                    <Label resource={item1} date={item0} />
-                                </div>
-                            {:else}
-                                <div
-                                    class="{$theme.day} {$theme.weekdays?.[item1.getUTCDay()]}{datesEqual(item1, $_today) ? ' ' + $theme.today : ''}"
-                                    role="columnheader"
-                                >
-                                    <time
-                                        datetime="{toISOString(item1, 10)}"
-                                        aria-label="{resourceLabels[i]}{$_intlDayHeaderAL.format(item1)}"
-                                        use:setContent={$_intlDayHeader.format(item1)}
-                                    ></time>
-                                </div>
-                            {/if}
-                        {/each}
-                    </div>
-                {/if}
-            </div>
+            </ColHead>
         {/each}
-    </Section>
-    <div class="{$theme.hiddenScroll}"></div>
-</div>
-{#if $allDaySlot}
-    <div class="{$theme.allDay}">
-        <div class="{$theme.content}">
-            <Section>
-                {#if $datesAboveResources}
-                    {#each $_viewDates as date}
-                        <div class="{$theme.resource}">
-                            {#each $_viewResources as resource}
-                                <Week dates={[date]} {resource}/>
-                            {/each}
-                        </div>
-                    {/each}
-                {:else}
-                    {#each $_viewResources as resource}
-                        <div class="{$theme.resource}">
-                            <Week dates={$_viewDates} {resource}/>
-                        </div>
-                    {/each}
-                {/if}
-            </Section>
-            <div class="{$theme.hiddenScroll}"></div>
-        </div>
-    </div>
-{/if}
-<Body>
-{#each loops[0] as item0}
-    <div class="{$theme.resource}">
-        {#each loops[1] as item1}
-            <Day
-                date={$datesAboveResources ? item0 : item1}
-                resource={$datesAboveResources ? item1 : item0}
-            />
-        {/each}
-    </div>
-{/each}
-</Body>
+        {#if length(grid[0]) > 1}
+            {#each grid as days, i}
+                {#each days as day, j}
+                    {@const {dayStart: date, resource, disabled, highlight} = day}
+                    <ColHead {date} colIndex={1 + j + i * length(days)} {disabled} {highlight}>
+                        {#if datesAboveResources}
+                            <Label {resource} {date}/>
+                        {:else}
+                            <DayHeader {date} alPrefix={resourceLabels[i]}/>
+                        {/if}
+                    </ColHead>
+                {/each}
+            {/each}
+        {/if}
+    {/snippet}
+
+    {#snippet nowIndicator()}
+        {#if datesAboveResources}
+            <NowIndicator days={grid.flat()} span={length(grid[0])}/>
+        {:else}
+            {#if length(grid[0]) > 1}
+                {#each grid as days}
+                    <NowIndicator {days} />
+                {/each}
+            {:else}
+                <NowIndicator days={grid.flat()} span={length(grid)}/>
+            {/if}
+        {/if}
+    {/snippet}
+</View>

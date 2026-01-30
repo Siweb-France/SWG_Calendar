@@ -4,7 +4,7 @@ See [demo](https://vkurko.github.io/calendar/) and [changelog](CHANGELOG.md).
 
 Full-sized drag & drop JavaScript event calendar with resource & timeline views:
 
-* Lightweight (33kb [br](https://en.wikipedia.org/wiki/Brotli) compressed)
+* Lightweight (35kb [br](https://en.wikipedia.org/wiki/Brotli) compressed)
 * 100% human-coded
 * Zero-dependency (standalone bundle)
 * Used on over 70,000 websites with [Bookly](https://wordpress.org/plugins/bookly-responsive-appointment-booking-tool/)
@@ -39,7 +39,9 @@ Inspired by [FullCalendar](https://fullcalendar.io/), it implements similar opti
   - [allDayContent](#alldaycontent)
   - [allDaySlot](#alldayslot)
   - [buttonText](#buttontext)
+  - [columnWidth](#columnwidth)
   - [customButtons](#custombuttons)
+  - [customScrollbars](#customscrollbars)
   - [date](#date)
   - [dateClick](#dateclick)
   - [datesAboveResources](#datesaboveresources)
@@ -66,9 +68,9 @@ Inspired by [FullCalendar](https://fullcalendar.io/), it implements similar opti
   - [eventDragStart](#eventdragstart)
   - [eventDragStop](#eventdragstop)
   - [eventDrop](#eventdrop)
-  - [eventDurationEditable](#eventdurationeditable)
   </td><td>
 
+  - [eventDurationEditable](#eventdurationeditable)
   - [eventFilter](#eventfilter)
   - [eventLongPressDelay](#eventlongpressdelay)
   - [eventMouseEnter](#eventmouseenter)
@@ -103,6 +105,7 @@ Inspired by [FullCalendar](https://fullcalendar.io/), it implements similar opti
   </td><td>
 
   - [pointer](#pointer)
+  - [refetchResourcesOnNavigate](#refetchresourcesonnavigate)
   - [resizeConstraint](#resizeconstraint)
   - [resources](#resources)
   - [resourceLabelContent](#resourcelabelcontent)
@@ -122,6 +125,7 @@ Inspired by [FullCalendar](https://fullcalendar.io/), it implements similar opti
   - [slotMaxTime](#slotmaxtime)
   - [slotMinTime](#slotmintime)
   - [slotWidth](#slotwidth)
+  - [snapDuration](#snapduration)
   - [theme](#theme)
   - [titleFormat](#titleformat)
   - [unselect](#unselect)
@@ -148,7 +152,10 @@ Inspired by [FullCalendar](https://fullcalendar.io/), it implements similar opti
   - [getEvents](#getevents)
   - [removeEventById](#removeeventbyid-id-)
   - [updateEvent](#updateevent-event-)
+  </td><td>
+
   - [refetchEvents](#refetchevents)
+  - [refetchResources](#refetchresources)
   </td><td>
 
   - [dateFromPoint](#datefrompoint-x-y-)
@@ -244,8 +251,8 @@ This bundle contains a version of the calendar that includes all plugins and is 
 
 The first step is to include the following lines of code in the `<head>` section of your page:
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@event-calendar/build@4.6.0/dist/event-calendar.min.css">
-<script src="https://cdn.jsdelivr.net/npm/@event-calendar/build@4.6.0/dist/event-calendar.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@event-calendar/build@5.3.1/dist/event-calendar.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@event-calendar/build@5.3.1/dist/event-calendar.min.js"></script>
 ```
 
 <details>
@@ -335,9 +342,16 @@ When hidden with `false`, all-day events will not be displayed in `timeGrid`/`re
 
 ### buttonText
 - Type `object` or `function`
-- Default `{close: 'Close', dayGridMonth: 'month', listDay: 'list', listMonth: 'list', listWeek: 'list', listYear: 'list', resourceTimeGridDay: 'resources', resourceTimeGridWeek: 'resources', resourceTimelineDay: 'timeline', resourceTimelineMonth: 'timeline', resourceTimelineWeek: 'timeline', timeGridDay: 'day', timeGridWeek: 'week', today: 'today'}`
+<ul>
+<li>
+<details>
+    <summary>Default</summary>
+
+`{close: 'Close', dayGridDay: 'day', dayGridMonth: 'month', dayGridWeek: 'week', listDay: 'list', listMonth: 'list', listWeek: 'list', listYear: 'list', resourceTimeGridDay: 'resources', resourceTimeGridWeek: 'resources', resourceTimelineDay: 'timeline', resourceTimelineMonth: 'timeline', resourceTimelineWeek: 'timeline', timeGridDay: 'day', timeGridWeek: 'week', today: 'today'}`
 > Views override the default value as follows:
+> - dayGridDay `text => ({...text, next: 'Next day', prev: 'Previous day'})`
 > - dayGridMonth `text => ({...text, next: 'Next month', prev: 'Previous month'})`
+> - dayGridWeek `text => ({...text, next: 'Next week', prev: 'Previous week'})`
 > - listDay `text => ({...text, next: 'Next day', prev: 'Previous day'})`
 > - listMonth `text => ({...text, next: 'Next month', prev: 'Previous month'})`
 > - listWeek `text => ({...text, next: 'Next week', prev: 'Previous week'})`
@@ -349,6 +363,10 @@ When hidden with `false`, all-day events will not be displayed in `timeGrid`/`re
 > - resourceTimelineWeek `text => ({...text, next: 'Next week', prev: 'Previous week'})`
 > - timeGridDay `text => ({...text, next: 'Next day', prev: 'Previous day'})`
 > - timeGridWeek `text => ({...text, next: 'Next week', prev: 'Previous week'})`
+
+</details>
+</li>
+</ul>
 
 Text that is displayed in buttons of the header toolbar.
 
@@ -369,8 +387,18 @@ function (text) {
 </tr>
 </table>
 
+### columnWidth
+- Type `string`
+- Default `undefined`
+
+Defines the column width in `timeGrid`/`resourceTimeGrid` views.
+
+This option accepts a CSS [length](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/grid-template-columns#values) value, so be sure to include `px` if you specify the value in pixels.
+
+If this option is `undefined`, the column width will adjust to the calendar width.
+
 ### customButtons
-- Type `object`
+- Type `object` or `function`
 - Default `{}`
 
 Defines custom buttons that can be used in the [headerToolbar](#headertoolbar).
@@ -430,13 +458,38 @@ If `true`, the button will appear pressed/active
 </tr>
 </table>
 
+This option can also be set as a callback function that receives default custom button object and should return a new one:
+
+```js
+function (customButtons) {
+  // return new custom buttons object
+}
+```
+<table>
+<tr>
+<td>
+
+`customButtons`
+</td>
+<td>An object with default custom buttons</td>
+</tr>
+</table>
+
+### customScrollbars
+- Type `boolean`
+- Default `false`
+
+Enables scrollbars styling, which in turn prevents the scrollbars from being hidden in [supported](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/::-webkit-scrollbar#browser_compatibility) browsers.
+
+This option can be useful, for example, for macOS users in `resourceTimeline` views to indicate that the calendar can be scrolled horizontally. On macOS, scrollbars can be hidden completely, and this option ensures they are always visible in [supported](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/::-webkit-scrollbar#browser_compatibility) browsers.
+
 ### date
 - Type `Date` or `string`
 - Default `new Date()`
 
 Date that is currently displayed on the calendar.
 
-This value can be either a JavaScript Date object, or an ISO8601 date string like `'2022-12-31'`.
+This value can be either a JavaScript Date object, or an ISO8601 date string like `'2026-12-31'`.
 
 ### dateClick
 - Type `function`
@@ -570,7 +623,7 @@ The current [View](#view-object) object
 - Type `object` or `function`
 - Default `{day: 'numeric'}`
 
-Defines the text that is displayed inside the day cell in the `dayGrid` view.
+Defines the text that is displayed inside the day cell in the `dayGridMonth` view.
 
 This value can be either an object with options for the native JavaScript [Intl.DateTimeFormat](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat) object, or a callback function that returns a [Content](#content) with the formatted string:
 
@@ -618,6 +671,7 @@ function (date) {
 - Type `object` or `function`
 - Default `{weekday: 'short', month: 'numeric', day: 'numeric'}`
 > Views override the default value as follows:
+> - dayGridDay `{weekday: 'long'}`
 > - dayGridMonth `{weekday: 'short'}`
 > - resourceTimelineMonth `{weekday: 'short', day: 'numeric'}`
 > - timeGridDay `{weekday: 'long'}`
@@ -668,7 +722,9 @@ function (date) {
 - Type `boolean`
 - Default `true`
 > Views override the default value as follows:
+> - dayGridDay `false`
 > - dayGridMonth `false`
+> - dayGridWeek `false`
 > - resourceTimelineDay `false`
 > - resourceTimelineMonth `false`
 > - resourceTimelineWeek `false`
@@ -695,6 +751,7 @@ Determines whether the calendar should automatically scroll during the event dra
 - Type `string`, `integer` or `object`
 - Default `{weeks: 1}`
 > Views override the default value as follows:
+> - dayGridDay `{days: 1}`
 > - dayGridMonth `{months: 1}`
 > - listDay `{days: 1}`
 > - listMonth `{months: 1}`
@@ -721,7 +778,7 @@ If you don't need both, use the more specific [eventStartEditable](#eventstarted
 - Type `array`
 - Default `[]`
 
-Array of plain objects that will be parsed into [Event](#event-object) objects and displayed on the calendar.
+Array of plain objects that will be [parsed](#parsing-event-from-a-plain-object) into [Event](#event-object) objects and displayed on the calendar.
 
 This option is not used if the `eventSources` option is provided.
 
@@ -1303,34 +1360,7 @@ function (a, b) {
 }
 ```
 
-`a` and `b` are objects (so called `event chunks`) with the following properties:
-
-<table>
-<tr>
-<td>
-
-`start`
-</td>
-<td>JavaScript Date object holding the event chunk’s start time</td>
-</tr>
-<tr>
-<td>
-
-`end`
-</td>
-<td>JavaScript Date object holding the event chunk’s end time</td>
-</tr>
-<tr>
-<td>
-
-`event`
-</td>
-<td>
-
-The [Event](#event-object) object associated with this chunk
-</td>
-</tr>
-</table>
+`a` and `b` are [Event](#event-object) objects.
 
 ### eventResizableFromStart
 - Type `boolean`
@@ -1525,7 +1555,7 @@ This option is used instead of the `events` option.
 </td>
 <td>
 
-A URL that the calendar will fetch [Event](#event-object) objects from. HTTP requests with the following parameters will be sent to this URL whenever the calendar needs new event data:
+A URL from which the calendar will fetch an array of [parsable](#parsing-event-from-a-plain-object) [Event](#event-object) objects in JSON format. HTTP requests with the following parameters will be sent to this URL whenever the calendar needs new event data:
 <table>
 <tr>
 <td>
@@ -1616,7 +1646,7 @@ function(fetchInfo, successCallback, failureCallback) { }
 </tr>
 </table>
 
-The `successCallback` function must be called by the custom function with an array of parsable [Event](#event-object) objects.
+The `successCallback` function must be called by the custom function with an array of [parsable](#parsing-event-from-a-plain-object) [Event](#event-object) objects.
 
 If there is any failure (e.g., if an AJAX request fails), then call the `failureCallback` instead. It accepts an argument with information about the failure.
 
@@ -1680,7 +1710,7 @@ Determines whether events that do not belong to the current array of [resources]
 - Type `boolean`
 - Default `false`
 
-Determines whether resources with no events for the current range should be hidden in the resource view.
+Determines whether resources with no events for the current range should be hidden in the resource view. Background events are not taken into account.
 
 ### firstDay
 - Type `integer`
@@ -1797,17 +1827,19 @@ Exclude certain days-of-the-week from being displayed, where Sunday is `0`, Mond
 
 Array of dates that need to be highlighted in the calendar.
 
-Each date can be either an ISO8601 date string like `'2022-12-31'`, or a JavaScript Date object.
+Each date can be either an ISO8601 date string like `'2026-12-31'`, or a JavaScript Date object.
 
 ### lazyFetching
 - Type `boolean`
 - Default `true`
 
-Determines when event fetching should occur.
+Determines when event and resource fetching should occur.
 
 When set to `true` (the default), the calendar will only fetch events when it absolutely needs to, minimizing HTTP requests. For example, say your calendar starts out in month view, in February. EventCalendar will fetch events for the entire month of February and store them in its internal storage. Then, say the user switches to week view and begins browsing the weeks in February. The calendar will avoid fetching events because it already has this information stored.
 
-When set to `false`, the calendar will fetch events any time the view is switched, or any time the current date changes (for example, as a result of the user clicking prev/next).
+When set to `false`, the calendar will fetch events any time the current date changes (for example, as a result of the user clicking prev/next).
+
+This also applies to resources if [refetchResourcesOnNavigate](#refetchresourcesonnavigate) is enabled.
 
 ### listDayFormat
 - Type `object` or `function`
@@ -1859,7 +1891,7 @@ function (date) {
 - Type `function`
 - Default `undefined`
 
-Callback function that is triggered when event fetching starts/stops.
+Callback function that is triggered when event or resource fetching starts/stops.
 
 ```js
 function (isLoading) { }
@@ -1872,7 +1904,7 @@ function (isLoading) { }
 </td>
 <td>
 
-`true` when the calendar begins fetching events, `false` when it’s done.
+`true` when the calendar begins fetching events or resources, `false` when it’s done.
 </td>
 </tr>
 </table>
@@ -1982,6 +2014,12 @@ Enables a marker indicating the current time in `timeGrid`/`resourceTimeGrid` vi
 
 Enables mouse cursor pointer in `timeGrid`/`resourceTimeGrid` and other views.
 
+### refetchResourcesOnNavigate
+- Type `boolean`
+- Default `false`
+
+Determines whether to refetch [resources](#resources) when the user navigates to a different date.
+
 ### resizeConstraint
 - Type `function`
 - Default `undefined`
@@ -1992,10 +2030,112 @@ Callback function that limits the date/time range within which the event is allo
 The function is triggered during resizing for each cursor movement and takes the same parameters as [eventResize](#eventresize). The function should return `true` if the new size is allowed, and `false` otherwise.
 
 ### resources
-- Type `array`
+- Type `array`, `object` or `function`
 - Default `[]`
 
-Array of plain objects that will be parsed into [Resource](#resource-object) objects for displaying in the resource view.
+Defines the source of resource data displayed in resource views. It can be provided in one of three ways:
+
+#### 1. Array of plain objects
+If the resources are predefined and do not change, then pass them as an array of plain objects. The provided plain objects will be [parsed]((#parsing-resource-from-a-plain-object)) into [Resource](#resource-object) objects.
+
+#### 2. Fetch resources from a URL
+To make the calendar load resources from a URL, specify `resources` option as an object with the following properties:
+<table>
+<tr>
+<td>
+
+`url`
+</td>
+<td>
+
+A URL from which the calendar will fetch an array of [parsable](#parsing-resource-from-a-plain-object) [Resource](#resource-object) objects in JSON format. If [refetchResourcesOnNavigate](#refetchresourcesonnavigate) is enabled then HTTP requests with the following parameters will be sent to the URL whenever the user navigates to a different date:
+<table>
+<tr>
+<td>
+
+`start`
+</td>
+<td>
+Start date of the range the calendar needs resources for
+</td>
+</tr>
+<tr>
+<td>
+
+`end`
+</td>
+<td>
+End date of the range the calendar needs resources for
+</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td>
+
+`method`
+</td>
+<td>
+
+HTTP request method. Default `'GET'`
+</td>
+</tr>
+<tr>
+<td>
+
+`extraParams`
+</td>
+<td>
+
+Other GET/POST data you want to send to the server. Can be a plain object or a function that returns an object. Default `{}`
+</td>
+</tr>
+</table>
+
+#### 3. Execute custom function
+You can also specify `resources` as a custom function that provides resource data.
+```js
+function(fetchInfo, successCallback, failureCallback) { }
+```
+If [refetchResourcesOnNavigate](#refetchresourcesonnavigate) is enabled, the function will be called every time the user navigates to a different date. In this case,
+`fetchInfo` will be an object with the following properties (it is an empty object otherwise):
+<table>
+<tr>
+<td>
+
+`start`
+</td>
+<td>JavaScript Date object for the beginning of the range the calendar needs resources for</td>
+</tr>
+<tr>
+<td>
+
+`end`
+</td>
+<td>JavaScript Date object for the end of the range the calendar needs resources for. Note: This value is exclusive</td>
+</tr>
+<tr>
+<td>
+
+`startStr`
+</td>
+<td>ISO8601 string representation of the start date</td>
+</tr>
+<tr>
+<td>
+
+`endStr`
+</td>
+<td>ISO8601 string representation of the end date</td>
+</tr>
+</table>
+
+The `successCallback` function must be called by the custom function with an array of [parsable](#parsing-resource-from-a-plain-object) [Resource](#resource-object) objects.
+
+If there is any failure (e.g., if an AJAX request fails), then call the `failureCallback` instead. It accepts an argument with information about the failure.
+
+Instead of calling `successCallback` and `failureCallback`, you may return the resulting array of resources or return a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) (or [thenable](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/resolve)) object instead.
 
 ### resourceLabelContent
 - Type `string`, `object`or `function`
@@ -2217,13 +2357,7 @@ If set to `false`, then intersecting events will be placed next to each other.
 - Type `integer`
 - Default `24`
 
-Defines the time slot height in pixels in the `timeGrid`/`resourceTimeGrid` views. When changing the setting, you must additionally override the following CSS styles:
-
-```css
-.ec-time-grid .ec-time, .ec-time-grid .ec-line {
-  height: 24px;  /* override this value */
-}
-```
+Defines the time slot height in pixels in the `timeGrid`/`resourceTimeGrid` views.
 
 ### slotLabelFormat
 - Type `object` or `function`
@@ -2256,7 +2390,7 @@ The interval at which slot labels should be displayed in `timeGrid`/`resourceTim
 
 This should be a value that can be parsed into a [Duration](#duration-object) object.
 
-If not specified, then if `slotDuration` is less than 1 hour, the interval is considered to be twice as long, i.e. the labels are displayed every other time.
+If not specified, then if [slotDuration](#slotduration) is less than 1 hour, the interval is considered to be twice as long, i.e. the labels are displayed every other time.
 
 If the interval is set to zero, then labels are displayed for all slots, including the very first one, which is not normally displayed in `timeGrid` views.
 
@@ -2278,32 +2412,46 @@ This should be a value that can be parsed into a [Duration](#duration-object) ob
 
 ### slotWidth
 - Type `integer`
-- Default `72`
+- Default `32`
 
-Defines the time slot width in pixels in `resourceTimeline` views. When changing the setting, you must additionally override the following CSS styles:
+Defines the time slot width in pixels in `resourceTimeline` views.
 
-```css
-.ec-timeline .ec-time, .ec-timeline .ec-line {
-  width: 72px;  /* override this value */
-}
-```
+### snapDuration
+- Type `string`, `integer` or `object`
+- Default `undefined`
+
+Defines the step for the time axis along which an event is [dragged](#editable), [resized](#editable) or [selection](#selectable) is made.
+
+This should be a value that can be parsed into a [Duration](#duration-object) object.
+
+If not specified, then equal to [slotDuration](#slotduration).
 
 ### theme
 - Type `object` or `function`
-- Default `{allDay: 'ec-all-day', active: 'ec-active', bgEvent: 'ec-bg-event', bgEvents: 'ec-bg-events', body: 'ec-body', button: 'ec-button', buttonGroup: 'ec-button-group', calendar: 'ec', container: 'ec-container', content: 'ec-content', day: 'ec-day', dayHead: 'ec-day-head', dayFoot: 'ec-day-foot', days: 'ec-days', daySide: 'ec-day-side', draggable: 'ec-draggable', dragging: 'ec-dragging', event: 'ec-event', eventBody: 'ec-event-body', eventTag: 'ec-event-tag', eventTime: 'ec-event-time', eventTitle: 'ec-event-title', events: 'ec-events', expander: 'ec-expander', extra: 'ec-extra', ghost: 'ec-ghost', handle: 'ec-handle', header: 'ec-header', hiddenScroll: 'ec-hidden-scroll', highlight: 'ec-highlight', icon: 'ec-icon', line: 'ec-line', lines: 'ec-lines', main: 'ec-main', minor: 'ec-minor', noEvents: 'ec-no-events', nowIndicator: 'ec-now-indicator', otherMonth: 'ec-other-month', pointer: 'ec-pointer', popup: 'ec-popup', preview: 'ec-preview', resizer: 'ec-resizer', resizingX: 'ec-resizing-x', resizingY: 'ec-resizing-y', resource: 'ec-resource', selecting: 'ec-selecting', sidebar: 'ec-sidebar', sidebarTitle: 'ec-sidebar-title', today: 'ec-today', time: 'ec-time', times: 'ec-times', title: 'ec-title', toolbar: 'ec-toolbar', view: 'ec-timeline ec-resource-week-view', weekdays: ['ec-sun', 'ec-mon', 'ec-tue', 'ec-wed', 'ec-thu', 'ec-fri', 'ec-sat'], withScroll: 'ec-with-scroll', uniform: 'ec-uniform'}`
+<ul>
+<li>
+<details>
+    <summary>Default</summary>
+
+`'{allDay: 'ec-all-day', active: 'ec-active', bgEvent: 'ec-bg-event', bgEvents: 'ec-bg-events', body: 'ec-body', button: 'ec-button', buttonGroup: 'ec-button-group', calendar: 'ec', colHead: 'ec-col-head', day: 'ec-day', dayHead: 'ec-day-head', disabled: 'ec-disabled', event: 'ec-event', eventBody: 'ec-event-body', eventTime: 'ec-event-time', eventTitle: 'ec-event-title', events: 'ec-events', grid: 'ec-grid', header: 'ec-header', hidden: 'ec-hidden', highlight: 'ec-highlight', icon: 'ec-icon', main: 'ec-main', noIeb: 'ec-no-ieb', noBeb: 'ec-no-beb', today: 'ec-today', title: 'ec-title', toolbar: 'ec-toolbar', view: 'ec-list ec-week-view', weekdays: ['ec-sun', ec-mon', ec-tue', ec-wed', ec-thu', ec-fri', ec-sat'], draggable: 'ec-draggable', ghost: 'ec-ghost', preview: 'ec-preview', pointer: 'ec-pointer', resizer: 'ec-resizer', start: 'ec-start', dragging: 'ec-dragging', resizingY: 'ec-resizing-y', resizingX: 'ec-resizing-x', selecting: 'ec-selecting', uniform: 'ec-uniform', dayFoot: 'ec-day-foot', otherMonth: 'ec-other-month', popup: 'ec-popup', weekNumber: 'ec-week-number', daySide: 'ec-day-side', eventTag: 'ec-event-tag', noEvents: 'ec-no-events', nowIndicator: 'ec-now-indicator', sidebar: 'ec-sidebar', slot: 'ec-slot', colGroup: 'ec-col-group', expander: 'ec-expander', rowHead: 'ec-row-head', slots: 'ec-slots}'`
 > Views override the default value as follows:
+> - dayGridDay `theme => ({...theme, view: 'ec-day-grid ec-day-view'})`
 > - dayGridMonth `theme => ({...theme, view: 'ec-day-grid ec-month-view'})`
+> - dayGridWeek `theme => ({...theme, view: 'ec-day-grid ec-week-view'})`
 > - listDay `theme => ({...theme, view: 'ec-list ec-day-view'})`
 > - listMonth `theme => ({...theme, view: 'ec-list ec-month-view'})`
 > - listWeek `theme => ({...theme, view: 'ec-list ec-week-view'})`
 > - listYear `theme => ({...theme, view: 'ec-list ec-year-view'})`
-> - resourceTimeGridDay `theme => ({...theme, view: 'ec-time-grid ec-resource-day-view'})`
-> - resourceTimeGridWeek `theme => ({...theme, view: 'ec-time-grid ec-resource-week-view'})`
-> - resourceTimelineDay `theme => ({...theme, view: 'ec-timeline ec-resource-day-view'})`
-> - resourceTimelineMonth `theme => ({...theme, view: 'ec-timeline ec-resource-month-view'})`
-> - resourceTimelineWeek `theme => ({...theme, view: 'ec-timeline ec-resource-week-view'})`
+> - resourceTimeGridDay `theme => ({...theme, view: 'ec-resource ec-time-grid ec-day-view'})`
+> - resourceTimeGridWeek `theme => ({...theme, view: 'ec-resource ec-time-grid ec-week-view'})`
+> - resourceTimelineDay `theme => ({...theme, view: 'ec-resource ec-timeline ec-day-view'})`
+> - resourceTimelineMonth `theme => ({...theme, view: 'ec-resource ec-timeline ec-month-view'})`
+> - resourceTimelineWeek `theme => ({...theme, view: 'ec-resource ec-timeline ec-week-view'})`
 > - timeGridDay `theme => ({...theme, view: 'ec-time-grid ec-day-view'})`
 > - timeGridWeek `theme => ({...theme, view: 'ec-time-grid ec-week-view'})`
+</details>
+</li>
+</ul>
 
 Defines the CSS classes that EventCalendar uses to generate HTML markup.
 
@@ -2430,7 +2578,7 @@ The range should be an object with the following properties:
 </td>
 <td>
 
-`string` or `Date` This should be either an ISO8601 date string like `'2025-12-31'`, or a JavaScript Date object holding the range start date
+`string` or `Date` This should be either an ISO8601 date string like `'2026-12-31'`, or a JavaScript Date object holding the range start date
 </td>
 </tr>
 <tr>
@@ -2440,7 +2588,7 @@ The range should be an object with the following properties:
 </td>
 <td>
 
-`string` or `Date` This should be either an ISO8601 date string like `'2025-12-31'`, or a JavaScript Date object holding the range end date
+`string` or `Date` This should be either an ISO8601 date string like `'2026-12-31'`, or a JavaScript Date object holding the range end date
 </td>
 </tr>
 </table>
@@ -2449,9 +2597,25 @@ It is not necessary to specify both properties. The range may have only `start` 
 
 ### view
 - Type `string`
-- Default `'resourceTimeGridWeek'`
+- Default `'timeGridWeek'`
 
-The view that is displayed in the calendar. Can be `'dayGridMonth'`, `'listDay'`, `'listWeek'`, `'listMonth'`, `'listYear'`, `'resourceTimeGridDay'`, `'resourceTimeGridWeek'`, `'resourceTimelineDay'`, `'resourceTimelineWeek'`, `'resourceTimelineMonth'`, `'timeGridDay'` or `'timeGridWeek'`.
+The view that is displayed in the calendar.
+
+The following values are available:
+- `'dayGridDay'`
+- `'dayGridWeek'`
+- `'dayGridMonth'`
+- `'listDay'`
+- `'listWeek'`
+- `'listMonth'`
+- `'listYear'`
+- `'resourceTimeGridDay'`
+- `'resourceTimeGridWeek'`
+- `'resourceTimelineDay'`
+- `'resourceTimelineWeek'`
+- `'resourceTimelineMonth'`
+- `'timeGridDay'`
+- `'timeGridWeek'`
 
 ### viewDidMount
 - Type `function`
@@ -2481,6 +2645,18 @@ The mounted [View](#view-object) object
 - Default `{}`
 
 You can specify options that apply only to specific views. To do so provide separate options objects within the `views` option, keyed by the name of the view.
+
+If you want to create a custom view, you can use the `type` property to inherit options from a standard view.
+
+```js
+views: {
+    resourceTimelineThreeDays: {
+        type: 'resourceTimelineDay',
+        duration: {days: 3}
+    }
+}
+```
+
 
 ### weekNumberContent
 - Type `Content` or `function`
@@ -2608,7 +2784,12 @@ Updates a single event with the matching `event`.`id`.
 ### refetchEvents()
 - Return value `EventCalendar` The calendar instance for chaining
 
-Refetches events from all sources.
+Refetches events from all [sources](#eventsources).
+
+### refetchResources()
+- Return value `EventCalendar` The calendar instance for chaining
+
+Refetches [resources](#resources) from URL or custom function.
 
 ### dateFromPoint( x, y )
 - Return value `object` or `null`
@@ -2858,7 +3039,7 @@ Here are all admissible fields for the event’s input object:
 </td>
 <td>
 
-`string` or `Date` This should be either an ISO8601 datetime string like `'2022-12-31 09:00:00'`, or a JavaScript Date object holding the event’s start time
+`string` or `Date` This should be either an ISO8601 datetime string like `'2026-12-31 09:00:00'`, or a JavaScript Date object holding the event’s start time
 </td>
 </tr>
 <tr>
@@ -2868,7 +3049,7 @@ Here are all admissible fields for the event’s input object:
 </td>
 <td>
 
-`string` or `Date` This should be either an ISO8601 datetime string like `'2022-12-31 13:00:00'`, or a JavaScript Date object holding the event’s end time
+`string` or `Date` This should be either an ISO8601 datetime string like `'2026-12-31 13:00:00'`, or a JavaScript Date object holding the event’s end time
 </td>
 </tr>
 <tr>
@@ -3231,16 +3412,14 @@ The library provides a built-in dark theme. You can activate it by adding the `e
 
 If you want the dark theme to be activated automatically based on the [preferred color scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme), then use the `ec-auto-dark` CSS class instead.
 
-Please note that the dark theme does not change the background and font color in the calendar. These are assumed to be set by the page styles, and the calendar inherits these styles.
-
-If you do need to set the background or font color of the calendar, use local CSS variables for this:
+You can also customize the colors in the calendar by overriding CSS variables, for example:
 ```css
 .ec {
   --ec-bg-color: #22272e;
   --ec-text-color: #adbac7;
 }
 ```
-A list of all available CSS variables can be found [here](packages/core/src/styles/theme.scss).
+A list of all available CSS variables can be found [here](packages/core/src/styles/theme.css).
 
 ## Browser support
 

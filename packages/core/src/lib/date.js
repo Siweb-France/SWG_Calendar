@@ -1,8 +1,10 @@
+import {isDate} from './utils.js';
+
 export const DAY_IN_SECONDS = 86400;
 
 export function createDate(input = undefined) {
     if (input !== undefined) {
-        return input instanceof Date ? _fromLocalDate(input) : _fromISOString(input);
+        return isDate(input) ? _fromLocalDate(input) : _fromISOString(input);
     }
 
     return _fromLocalDate(new Date());
@@ -18,7 +20,7 @@ export function createDuration(input) {
             seconds += parseInt(part, 10) * Math.pow(60, exp--);
         }
         input = {seconds};
-    } else if (input instanceof Date) {
+    } else if (isDate(input)) {
         input = {hours: input.getUTCHours(), minutes: input.getUTCMinutes(), seconds: input.getUTCSeconds()};
     }
 
@@ -133,8 +135,10 @@ export function toSeconds(duration) {
 /**
  * Move the date forward (when pressing the next button)
  */
-export function nextDate(date, duration) {
+export function nextDate(date, duration, hiddenDays) {
     addDuration(date, duration);
+    _skipHiddenDays(date, hiddenDays, addDay);
+
     return date;
 }
 
@@ -143,12 +147,17 @@ export function nextDate(date, duration) {
  */
 export function prevDate(date, duration, hiddenDays) {
     subtractDuration(date, duration);
+    _skipHiddenDays(date, hiddenDays, subtractDay);
+
+    return date;
+}
+
+function _skipHiddenDays(date, hiddenDays, dateFn) {
     if (hiddenDays.length && hiddenDays.length < 7) {
         while (hiddenDays.includes(date.getUTCDay())) {
-            subtractDay(date);
+            dateFn(date);
         }
     }
-    return date;
 }
 
 /**
@@ -159,7 +168,7 @@ export function prevDate(date, duration, hiddenDays) {
 export function getWeekNumber(date, firstDay) {
     // Copy date so don't modify original
     date = cloneDate(date);
-    if (firstDay == 0) {  // Western
+    if (firstDay === 0) {  // Western
         // Set to nearest Saturday: current date + 6 - current day number
         date.setUTCDate(date.getUTCDate() + 6 - date.getUTCDay());
     } else {  // ISO

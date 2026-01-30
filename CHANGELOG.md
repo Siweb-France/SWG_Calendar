@@ -1,5 +1,104 @@
 # EventCalendar changelog
 
+## 5.3.1
+January 29, 2026
+* Fixed an issue with `pointercancel` JS event in the mobile version of Firefox ([606](https://github.com/vkurko/calendar/issues/606))
+
+## 5.3.0
+January 23, 2026
+* Added ability to provide resources as a function ([565](https://github.com/vkurko/calendar/issues/565))
+* Added `refetchResources()` method ([376](https://github.com/vkurko/calendar/issues/376))
+* Added `refetchResourcesOnNavigate` option
+
+## 5.2.4
+January 20, 2026
+* `filterResourcesWithEvents` now, as in v4.x.x, does not take `background` events into account
+* `eventFilter` now is triggered when the view changes ([557](https://github.com/vkurko/calendar/discussions/557))
+
+## 5.2.3
+January 13, 2026
+* Fixed a bug with `hiddenDays` ([601](https://github.com/vkurko/calendar/issues/601))
+
+## 5.2.2
+January 12, 2026
+* Added `customScrollbars` option ([600](https://github.com/vkurko/calendar/issues/600))
+
+## 5.2.1
+January 8, 2026
+* Fixed a regression bug ([598](https://github.com/vkurko/calendar/issues/598))
+
+## 5.2.0
+January 7, 2026
+* Added `dayGridDay` and `dayGridWeek` views ([593](https://github.com/vkurko/calendar/issues/593))
+* Fixed a regression with `eventDidMount` ([594](https://github.com/vkurko/calendar/issues/594))
+
+## 5.1.4
+January 5, 2026
+* Added automatic scrolling to today's date in `resourceTimelineMonth` view
+* Fixed an issue with no effect when using a value obtained from `getOption` in `setOption`
+* Fixed minor regression bugs in `dayGrid` and `resourceTimelineMonth` views
+
+## 5.1.3
+January 2, 2026
+* Fixed an issue with loading data via the URL version of event sources
+
+## 5.1.2
+December 29, 2025
+* Added support for custom views ([504](https://github.com/vkurko/calendar/issues/504))
+
+## 5.1.1
+December 29, 2025
+* Fixed regression bug related to event manipulation ([589](https://github.com/vkurko/calendar/issues/589))
+
+## 5.1.0
+December 25, 2025
+* Added `snapDuration` option ([226](https://github.com/vkurko/calendar/issues/226))
+* Added automatic scrolling to today's date when `datesAboveResources` is set to `true`
+* :warning: The code has been rewritten to use Svelte 5 `runes` instead of Svelte 4 `stores`
+
+## 5.0.6
+December 23, 2025
+* Fixed incorrect display of `dayGrid` when switching from another view
+
+## 5.0.5
+December 19, 2025
+* Fixed some conflicts with Tailwind ([586](https://github.com/vkurko/calendar/issues/586))
+* Fixed display in timeline view when there is only one resource
+
+## 5.0.4
+December 15, 2025
+* Fixed pointer position when CSS scaling is applied ([421](https://github.com/vkurko/calendar/issues/421))
+* Better RTL support
+
+## 5.0.3
+December 14, 2025
+* Fixed an issue with `@tailwindcss/vite` ([584](https://github.com/vkurko/calendar/issues/584))
+
+## 5.0.2
+December 13, 2025
+* CSS Grid gaps didn't look good, so replaced them with borders
+* Better RTL support
+
+## 5.0.1
+December 12, 2025
+* Fixed some RTL issues ([552](https://github.com/vkurko/calendar/issues/552))
+* Fixed other minor issues
+
+## 5.0.0
+December 10, 2025
+* :warning: A new layout based on [CSS Grid](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Grid_layout) has been implemented
+* :warning: Please review the new layout **carefully** before using it in production
+* Added `columnWidth` option ([317](https://github.com/vkurko/calendar/issues/317), [574](https://github.com/vkurko/calendar/issues/574))
+* Added automatic scrolling to today's date in `resourceTimelineWeek` view ([319](https://github.com/vkurko/calendar/issues/319))
+
+## 4.7.1
+October 23, 2025
+* Fixed dragging events on mobile devices ([573](https://github.com/vkurko/calendar/issues/573))
+
+## 4.7.0
+October 10, 2025
+* Added ability to set `customButtons` as function ([499](https://github.com/vkurko/calendar/issues/499))
+
 ## 4.6.0
 September 4, 2025
 * Added `eventOrder` option ([549](https://github.com/vkurko/calendar/issues/549))

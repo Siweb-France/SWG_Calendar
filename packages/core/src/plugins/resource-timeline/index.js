@@ -1,40 +1,41 @@
-import {writable} from 'svelte/store';
-import {btnTextDay, btnTextMonth, btnTextWeek, themeView, viewResources} from '#lib';
-import {dayTimeLimits, dayTimes, nestedResources} from './stores.js';
+import {btnTextDay, btnTextMonth, btnTextWeek, getPayload, themeView} from '#lib';
+import {setExtensions} from '../time-grid/lib.js';
+import {createTRROptions, createTRRParsers} from '../time-grid/options.js';
+import {createRROptions} from '../resource-time-grid/options.js';
 import View from './View.svelte';
 
 export default {
 	createOptions(options) {
+        createTRROptions(options);
+        createRROptions(options);
+        options.slotWidth = 32;
 		// Common options
 		options.buttonText.resourceTimelineDay = 'timeline';
 		options.buttonText.resourceTimelineWeek = 'timeline';
 		options.buttonText.resourceTimelineMonth = 'timeline';
 		options.theme.expander = 'ec-expander';
-		options.theme.main = 'ec-main';
-		options.theme.times = 'ec-times';
-		options.theme.container = 'ec-container';
+        options.theme.rowHead = 'ec-row-head';
+		options.theme.slots = 'ec-slots';
 		options.view = 'resourceTimelineWeek';
 		options.views.resourceTimelineDay = {
 			buttonText: btnTextDay,
-			component: View,
+			component: initViewComponent,
 			displayEventEnd: false,
 			dayHeaderFormat: {weekday: 'long'},
 			duration: {days: 1},
-			slotDuration: '01:00',
-			theme: themeView('ec-timeline ec-resource-day-view'),
+			theme: themeView('ec-resource ec-timeline ec-day-view'),
 			titleFormat: {year: 'numeric', month: 'long', day: 'numeric'}
 		};
 		options.views.resourceTimelineWeek = {
 			buttonText: btnTextWeek,
-			component: View,
+			component: initViewComponent,
 			displayEventEnd: false,
 			duration: {weeks: 1},
-			slotDuration: '01:00',
-			theme: themeView('ec-timeline ec-resource-week-view')
+			theme: themeView('ec-resource ec-timeline ec-week-view')
 		};
 		options.views.resourceTimelineMonth = {
 			buttonText: btnTextMonth,
-			component: View,
+			component: initMonthViewComponent,
 			displayEventEnd: false,
 			dayHeaderFormat: {
 				weekday: 'short',
@@ -42,25 +43,23 @@ export default {
 			},
 			duration: {months: 1},
 			slotDuration: {days: 1},
-			theme: themeView('ec-timeline ec-resource-month-view'),
+			theme: themeView('ec-resource ec-timeline ec-month-view'),
 			titleFormat: {year: 'numeric', month: 'long'}
 		};
 	},
 
-	createStores(state) {
-		if (!('_viewResources' in state)) {
-			state._viewResources = viewResources(state);
-		}
-		state._bodyHeight = writable(0);
-		state._bodyWidth = writable(0);
-		state._bodyScrollLeft = writable(0);
-		state._headerEl = writable(undefined);
-		state._headerHeight = writable(0);
-		state._dayTimeLimits = dayTimeLimits(state);  // flexible time limits per day
-		state._dayTimes = dayTimes(state);
-		state._daysHs = writable(new Map());  // days row heights
-		state._nestedResources = nestedResources(state);
-		state._resHs = writable(new Map());  // resource row heights
-		state._sidebarEl = writable(undefined);
-	}
+    createParsers(parsers) {
+        createTRRParsers(parsers);
+    }
+}
+
+function initViewComponent(mainState) {
+	setExtensions(mainState);
+	return initMonthViewComponent(mainState);
+}
+
+function initMonthViewComponent(mainState) {
+	mainState.features = ['timeline'];
+	mainState.extensions.viewResources = resources => resources.filter(resource => !getPayload(resource).hidden);
+	return View;
 }

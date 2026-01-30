@@ -1,34 +1,49 @@
-import {btnTextDay, btnTextWeek, themeView, viewResources} from '#lib';
-import TimeGrid from '../time-grid/index.js';
+import {assign, btnTextDay, btnTextWeek, themeView} from '#lib';
+import {setExtensions} from '../time-grid/lib.js';
+import {createTROptions, createTRROptions, createTRRParsers} from '../time-grid/options.js';
+import {createRROptions} from './options.js';
 import View from './View.svelte';
 
 export default {
     createOptions(options) {
-        options.datesAboveResources = false;
-        // Common options
-        options.buttonText.resourceTimeGridDay = 'resources';
-        options.buttonText.resourceTimeGridWeek = 'resources';
-        options.view = 'resourceTimeGridWeek';
-        options.views.resourceTimeGridDay = {
-            buttonText: btnTextDay,
-            component: View,
-            duration: {days: 1},
-            theme: themeView('ec-time-grid ec-resource-day-view')
-        };
-        options.views.resourceTimeGridWeek = {
-            buttonText: btnTextWeek,
-            component: View,
-            duration: {weeks: 1},
-            theme: themeView('ec-time-grid ec-resource-week-view')
-        };
+        createTROptions(options);
+        createTRROptions(options);
+        createRROptions(options);
+        assign(options, {
+            datesAboveResources: false,
+            // Common options
+            view: 'resourceTimeGridWeek'
+        });
+        assign(options.buttonText, {
+            resourceTimeGridDay: 'resources',
+            resourceTimeGridWeek: 'resources'
+        });
+        assign(options.theme, {
+            colGroup: 'ec-col-group'
+        });
+        assign(options.views, {
+            resourceTimeGridDay: {
+                buttonText: btnTextDay,
+                component: initViewComponent,
+                dayHeaderFormat: {weekday: 'long'},
+                duration: {days: 1},
+                theme: themeView('ec-resource ec-time-grid ec-day-view')
+            },
+            resourceTimeGridWeek: {
+                buttonText: btnTextWeek,
+                component: initViewComponent,
+                duration: {weeks: 1},
+                theme: themeView('ec-resource ec-time-grid ec-week-view')
+            }
+        });
     },
 
-    createStores(state) {
-        if (!('_times' in state)) {
-            TimeGrid.createStores(state);
-        }
-        if (!('_viewResources' in state)) {
-            state._viewResources = viewResources(state);
-        }
+    createParsers(parsers) {
+        createTRRParsers(parsers);
     }
+}
+
+function initViewComponent(mainState) {
+    setExtensions(mainState);
+    return View;
 }

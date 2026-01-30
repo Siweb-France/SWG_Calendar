@@ -16,10 +16,6 @@ export function createElement(tag, className, content, attrs = []) {
     return el;
 }
 
-export function hasYScroll(el) {
-    return el.scrollHeight > el.clientHeight;
-}
-
 export function rect(el) {
     return el.getBoundingClientRect();
 }
@@ -55,4 +51,13 @@ export function getElementWithPayload(x, y, root = document, processed = []) {
 export function listen(node, event, handler, options) {
     node.addEventListener(event, handler, options);
     return () => node.removeEventListener(event, handler, options);
+}
+
+export function stopPropagation(fn, _this = undefined) {
+    return function (jsEvent) {
+        jsEvent.stopPropagation();
+        if (fn) {
+            fn.call(_this, jsEvent);
+        }
+    };
 }

@@ -1,42 +1,69 @@
-import {writable} from 'svelte/store';
-import {btnTextMonth, intl, themeView} from '#lib';
-import {days} from './stores.js';
+import {assign, btnTextDay, btnTextMonth, btnTextWeek, nextClosestDay, prevClosestDay, themeView} from '#lib';
 import View from './View.svelte';
 
 export default {
     createOptions(options) {
-        options.dayMaxEvents = false;
-        options.dayCellFormat = {day: 'numeric'};
-        options.dayPopoverFormat = {month: 'long', day: 'numeric', year: 'numeric'};
-        options.moreLinkContent = undefined;
-        options.weekNumbers = false;
-        options.weekNumberContent = undefined;
-        // Common options
-        options.buttonText.dayGridMonth = 'month';
-        options.buttonText.close = 'Close';
-        options.theme.uniform = 'ec-uniform';
-        options.theme.dayFoot = 'ec-day-foot';
-        options.theme.popup = 'ec-popup';
-        options.theme.weekNumber = 'ec-week-number';
-        options.view = 'dayGridMonth';
-        options.views.dayGridMonth = {
-            buttonText: btnTextMonth,
-            component: View,
-            dayHeaderFormat: {weekday: 'short'},
-            dayHeaderAriaLabelFormat: {weekday: 'long'},
-            displayEventEnd: false,
-            duration: {months: 1},
-            theme: themeView('ec-day-grid ec-month-view'),
-            titleFormat: {year: 'numeric', month: 'long'}
-        };
-    },
-
-    createStores(state) {
-        state._days = days(state);
-        state._intlDayCell = intl(state.locale, state.dayCellFormat);
-        state._intlDayPopover = intl(state.locale, state.dayPopoverFormat);
-        state._hiddenEvents = writable({});
-        state._popupDate = writable(null);
-        state._popupChunks = writable([]);
+        assign(options, {
+            dayMaxEvents: false,
+            dayCellFormat: {day: 'numeric'},
+            dayPopoverFormat: {month: 'long', day: 'numeric', year: 'numeric'},
+            moreLinkContent: undefined,
+            weekNumbers: false,
+            weekNumberContent: undefined,
+            // Common options
+            view: 'dayGridMonth'
+        });
+        assign(options.buttonText, {
+            dayGridDay: 'day',
+            dayGridMonth: 'month',
+            dayGridWeek: 'week',
+            close: 'Close'
+        });
+        assign(options.theme, {
+            uniform: 'ec-uniform',
+            dayFoot: 'ec-day-foot',
+            otherMonth: 'ec-other-month',
+            popup: 'ec-popup',
+            weekNumber: 'ec-week-number'
+        });
+        assign(options.views, {
+            dayGridDay: {
+                buttonText: btnTextDay,
+                component: () => View,
+                dayHeaderFormat: {weekday: 'long'},
+                displayEventEnd: false,
+                duration: {days: 1},
+                theme: themeView('ec-day-grid ec-day-view')
+            },
+            dayGridWeek: {
+                buttonText: btnTextWeek,
+                component: () => View,
+                displayEventEnd: false,
+                theme: themeView('ec-day-grid ec-week-view')
+            },
+            dayGridMonth: {
+                buttonText: btnTextMonth,
+                component: initMonthViewComponent,
+                dayHeaderFormat: {weekday: 'short'},
+                dayHeaderAriaLabelFormat: {weekday: 'long'},
+                displayEventEnd: false,
+                duration: {months: 1},
+                theme: themeView('ec-day-grid ec-month-view'),
+                titleFormat: {year: 'numeric', month: 'long'}
+            }
+        });
     }
+}
+
+function initMonthViewComponent(mainState) {
+    mainState.features = ['dayNumber'];
+    mainState.extensions.activeRange = (start, end) => {
+        // Dependencies
+        let {options: {firstDay}} = mainState;
+        return {
+            start: prevClosestDay(start, firstDay),
+            end: nextClosestDay(end, firstDay)
+        }
+    };
+    return View;
 }
