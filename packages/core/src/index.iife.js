@@ -1,4 +1,4 @@
-import {createCalendar, DayGrid, Interaction, List, ResourceTimeGrid, ResourceTimeline, TimeGrid, ResourceByDayGrid} from './index.es.js';
+import {createCalendar, DayGrid, Interaction, List, ResourceTimeGrid, ResourceTimeline, TimeGrid} from './index.es.js';
 
 export function create(target, options) {
     return createCalendar(target, [
@@ -7,8 +7,7 @@ export function create(target, options) {
         List,
         ResourceTimeGrid,
         ResourceTimeline,
-        TimeGrid,
-        ResourceByDayGrid
+        TimeGrid
     ], options);
 }
 

@@ -22,5 +22,4 @@ export {
     ResourceTimeGrid,
     ResourceTimeline,
     TimeGrid,
-    ResourceByDayGrid
 } from './index.svelte.js';
